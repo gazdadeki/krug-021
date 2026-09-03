@@ -1,0 +1,165 @@
+@use "./globals/mixins" as mix;
+.customer-modal {
+    height: 100vh;
+    width: 100vw;
+    /* Closed, this is still a full-viewport block in normal flow. Keep it from
+       swallowing clicks meant for the screen behind it. */
+    pointer-events: none;
+
+    &.opened {
+        pointer-events: auto;
+        background-image: url(../assets/modal-img.jpg);
+        background-color: rgba(19, 19, 19, 0.95);
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        transition: 0.2s ease-in-out;
+
+        .modal-dialog {
+            width: 700px;
+            height: 700px;
+            color: white;
+            background-color: black;
+            border: 1px solid yellowgreen;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+            transition: 1s ease-in-out;
+            @include mix.flexBoxCenter;
+
+            .modal-new-instance {
+                position: absolute;
+                bottom: 34px;
+                left: 50%;
+                transform: translateX(-50%);
+                cursor: pointer;
+
+                img {
+                    width: 180px;
+                    background: none;
+                    transition: transform .35s;
+                }
+
+                &:hover img {
+                    transform: scale(1.2)
+                }
+
+                &:focus {
+                    outline: 0 !important;
+                    border: none;
+                    box-shadow: none;
+                }
+            }
+            
+            .modal-body {
+                height: 500px;
+                width: 470px;
+                box-sizing: border-box;
+                /* Reserve the strip the fatality icon is absolutely positioned
+                   over, so the closing lines can never slide under it. */
+                padding-bottom: 140px;
+                @include mix.flexBoxCenter;
+                flex-direction: column;
+                justify-content: space-around;
+
+                .modal-desc {
+                    text-align: center;
+                    font-weight: 700;
+                    font-size: 24px;
+
+                    &.line-height {
+                        line-height: 2.2rem;
+                        font-size: 28px;
+                    }
+
+                    .span-color {
+                        color: yellowgreen;
+                    }
+                }
+
+                .modal-order {
+                    width: 100%;
+                    max-height: 96px;
+                    overflow-y: auto;
+                    @include mix.customScrollbar($size: 5px);
+                    padding: 0;
+                    margin: 0;
+                    @include mix.fontStyle($fontSize: 16px, $fontWeigth: 700);
+
+                    li {
+                        @include mix.customFlex($justify: space-between, $align: center);
+                        padding: 2px 0;
+
+                        .order__name {
+                            text-align: left;
+                            margin-right: 12px;
+                        }
+
+                        .span-color {
+                            color: yellowgreen;
+                            white-space: nowrap;
+                        }
+                    }
+
+                    .order__subtotals {
+                        border-top: 1px solid yellowgreen;
+                        margin-top: 6px;
+                        padding-top: 6px;
+                    }
+                }
+
+                .main-content {
+                    font-size: 42px;
+                }
+            }
+        }
+    }
+}
+
+/* The 700px circle needs the height to match. On shorter screens scale the
+   whole receipt down rather than letting it run off the top and bottom. */
+@media (max-height: 780px) {
+    .customer-modal.opened {
+        .modal-dialog {
+            width: 600px;
+            height: 600px;
+
+            .modal-new-instance img {
+                width: 130px;
+            }
+
+            .modal-body {
+                height: 430px;
+                width: 400px;
+                padding-bottom: 108px;
+
+                .modal-desc {
+                    font-size: 20px;
+
+                    &.line-height {
+                        font-size: 22px;
+                        line-height: 1.9rem;
+                    }
+                }
+
+                .modal-order {
+                    max-height: 76px;
+                }
+
+                .main-content {
+                    font-size: 34px;
+                }
+            }
+        }
+    }
+}

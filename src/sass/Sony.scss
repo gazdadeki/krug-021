@@ -1,0 +1,69 @@
+@use "./globals/mixins" as mix;
+.sony__container {
+    flex: 0 0 100%;
+    height: 100%;
+    color: greenyellow;
+    background-color: rgb(32,32,32);
+    border-bottom: 3px solid greenyellow;
+    box-sizing: border-box;
+
+    &:first-of-type {
+        border-right: 3px solid greenyellow;
+    }
+
+    .sony__header-title {
+        border-bottom: 3px solid greenyellow;
+        h1 {
+            text-align: center;
+            margin: 25px auto;
+            font-size: 60px;
+            color: #fff;
+            letter-spacing: 8px;
+        }
+    }
+
+    .open_modal_button {
+        border: 3px solid #fff;
+        margin: 60px auto;
+        font-size: 22px;
+        height: 50px;
+        width: 220px;
+    }
+
+    .sony__inner-content {
+        @include mix.customFlex($justify: center, $wrap: wrap);
+        width: 100%;
+        margin-top: 100px;
+
+
+        .gamepads__form {
+            flex: 0 0 50%;
+            @include mix.customFlex($align: center, $direction: column);
+
+            &.two__gamepads, &.four__gamepads {
+
+                h1 {
+                    letter-spacing: 5px;
+                    margin-bottom: 25px;
+                    font-size: 22px;
+                }
+
+                input {           
+                    &:first-of-type {
+                    margin-right: 10px;
+                    }
+                }
+            }
+
+            input {
+                margin-bottom: 25px;
+
+            }
+
+            button {
+                margin: 0 auto;
+
+            }
+        }
+    }
+}

@@ -1,0 +1,66 @@
+@mixin flexBoxSpace {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@mixin flexBoxCenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@mixin customFlex(
+    $justify: null, 
+    $align: null, 
+    $wrap: null, 
+    $direction: null, 
+    $order: null,
+    ) {
+    display: flex;
+    justify-content: $justify;
+    align-items: $align;
+    flex-wrap: $wrap;
+    flex-direction: $direction;
+    order: $order
+};
+
+@mixin customScrollbar(
+    $thumb: rgba(173, 255, 47, 0.32),
+    $thumbHover: rgba(173, 255, 47, 0.62),
+    $size: 6px,
+    ) {
+    /* Firefox - ignores ::-webkit-scrollbar entirely */
+    scrollbar-width: thin;
+    scrollbar-color: $thumb transparent;
+
+    &::-webkit-scrollbar {
+        width: $size;
+        height: $size;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: $thumb;
+        border-radius: 999px;
+        transition: background .2s ease;
+
+        &:hover {
+            background: $thumbHover;
+        }
+    }
+
+    &::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+};
+
+@mixin fontStyle($fontSize: null, $color: null, $fontFamily: null, $fontWeigth: null) {
+    font-size: $fontSize;
+    color: $color;
+    font-family: $fontFamily;
+    font-weight: $fontWeigth;
+}

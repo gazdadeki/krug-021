@@ -1,0 +1,251 @@
+@use "./globals/mixins" as mix;
+$accent: greenyellow;
+$screen-bg: #141414;
+$panel-bg: #1b1b1b;
+$card-bg: #232323;
+$card-border: #343434;
+$hairline: #2a2a2a;
+$text-muted: #8f8f8f;
+
+.drinks__screen {
+    height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+    background-color: $screen-bg;
+    @include mix.customFlex($direction: column);
+
+    /* ---------- header ---------- */
+
+    .drinks__header {
+        position: relative;
+        flex: 0 0 auto;
+        text-align: center;
+        padding: 22px 40px 18px;
+        border-bottom: 1px solid $hairline;
+
+
+        h1 {
+            @include mix.fontStyle($fontSize: 34px, $color: #fff, $fontWeigth: 700);
+            text-transform: uppercase;
+            letter-spacing: 6px;
+        }
+
+        .drinks__hint {
+            @include mix.fontStyle($fontSize: 13px, $color: $text-muted);
+            letter-spacing: 1.5px;
+            margin-top: 8px;
+        }
+    }
+
+    /* ---------- scrolling menu ---------- */
+
+    .drinks__content {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        box-sizing: border-box;
+        padding: 26px 40px 14px;
+
+        @include mix.customScrollbar;
+    }
+
+    .menu__group {
+        margin-bottom: 22px;
+
+        &:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .menu__group-title {
+            @include mix.fontStyle($fontSize: 13px, $color: $accent, $fontWeigth: 800);
+            @include mix.customFlex($align: center);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+
+            &::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: $hairline;
+                margin-left: 16px;
+            }
+        }
+
+        .menu__grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+            grid-gap: 14px;
+        }
+    }
+
+    /* ---------- product card ---------- */
+
+    .menu__card {
+        position: relative;
+        border-radius: 14px;
+        background: $card-bg;
+        border: 1px solid $card-border;
+        transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease, transform .18s ease;
+
+        &:hover {
+            border-color: #4d4d4d;
+            transform: translateY(-2px);
+        }
+
+        &.selected {
+            border-color: $accent;
+            background: rgba(173, 255, 47, 0.08);
+            box-shadow: 0 6px 20px rgba(173, 255, 47, 0.12);
+        }
+
+        .menu__card-add {
+            width: 100%;
+            min-height: 72px;
+            height: auto;
+            box-sizing: border-box;
+            padding: 16px 52px 16px 16px;
+            border: none;
+            border-radius: 14px;
+            background: none;
+            @include mix.customFlex($justify: center, $align: flex-start, $direction: column);
+            text-align: left;
+
+            &:hover {
+                opacity: 1;
+            }
+
+            &:focus {
+                outline: none;
+                box-shadow: inset 0 0 0 2px $accent;
+            }
+
+            /* No price here on purpose - the worker only picks products;
+               prices appear on the customer's receipt. */
+            .menu__card-name {
+                @include mix.fontStyle($fontSize: 17px, $color: #fff, $fontWeigth: 600);
+                line-height: 1.3;
+            }
+        }
+
+        .menu__card-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            min-width: 28px;
+            height: 28px;
+            box-sizing: border-box;
+            padding: 0 8px;
+            border-radius: 14px;
+            background: $accent;
+            @include mix.fontStyle($fontSize: 14px, $color: #111, $fontWeigth: 800);
+            @include mix.flexBoxCenter;
+        }
+
+        .menu__card-remove {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            padding: 0;
+            border-radius: 50%;
+            border: 1px solid #4a4a4a;
+            background: #1b1b1b;
+            @include mix.fontStyle($fontSize: 18px, $color: #fff);
+            line-height: 1;
+
+            &:hover {
+                opacity: 1;
+                background: #2c2c2c;
+                border-color: $accent;
+                color: $accent;
+            }
+        }
+    }
+
+    /* ---------- summary bar ---------- */
+
+    .drinks__footer {
+        flex: 0 0 auto;
+        box-sizing: border-box;
+        padding: 16px 40px;
+        background: $panel-bg;
+        border-top: 1px solid $hairline;
+        @include mix.customFlex($justify: space-between, $align: center);
+
+        .order__summary {
+            @include mix.customFlex($align: center);
+
+            .order__row {
+                @include mix.customFlex($direction: column);
+                margin-right: 30px;
+
+                .order__label {
+                    @include mix.fontStyle($fontSize: 12px, $color: $text-muted, $fontWeigth: 700);
+                    @include mix.customFlex($align: center);
+                    text-transform: uppercase;
+                    letter-spacing: 1.5px;
+                    margin-bottom: 3px;
+                }
+
+                .order__value {
+                    @include mix.fontStyle($fontSize: 20px, $color: #fff, $fontWeigth: 700);
+                }
+
+                .order__count {
+                    background: $accent;
+                    color: #111;
+                    border-radius: 9px;
+                    padding: 1px 7px;
+                    margin-left: 8px;
+                    font-size: 11px;
+                    font-weight: 800;
+                    font-style: normal;
+                    letter-spacing: 0;
+                }
+            }
+
+            .order__row--total {
+                padding-left: 30px;
+                border-left: 1px solid #333;
+                margin-right: 0;
+
+                .order__label {
+                    color: $accent;
+                }
+
+                .order__value {
+                    color: $accent;
+                    font-size: 30px;
+                }
+            }
+        }
+
+        .open_modal_button {
+            width: 210px;
+            height: 56px;
+            border: 2px solid $accent;
+            border-radius: 28px;
+            color: $accent;
+            @include mix.fontStyle($fontSize: 20px, $fontWeigth: 700);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+
+            &:hover {
+                opacity: 1;
+                background: $accent;
+                color: #111;
+            }
+
+            /* Keyboard flow lands here on arrival - make that unmistakable. */
+            &:focus {
+                outline: none;
+                background: $accent;
+                color: #111;
+                box-shadow: 0 0 0 4px rgba(173, 255, 47, 0.28);
+            }
+        }
+    }
+}
