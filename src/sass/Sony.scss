@@ -22,19 +22,16 @@
         }
     }
 
-    .open_modal_button {
-        border: 3px solid #fff;
-        margin: 60px auto;
-        font-size: 22px;
-        height: 50px;
-        width: 220px;
-    }
-
     .sony__inner-content {
         @include mix.customFlex($justify: center, $wrap: wrap);
         width: 100%;
         margin-top: 100px;
 
+
+        .sony__submit {
+            width: 200px;
+            height: 40px;
+        }
 
         .gamepads__form {
             flex: 0 0 50%;
@@ -60,10 +57,6 @@
 
             }
 
-            button {
-                margin: 0 auto;
-
-            }
         }
     }
 }

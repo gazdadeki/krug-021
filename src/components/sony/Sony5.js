@@ -82,7 +82,6 @@ const isNumber = (char) => typeof char === 'string' && char.trim() !== '' && !is
 const Sony5 = ({ active, setFinalPrice, setCustomerDetails, goToDrinks }) => {
     const { register, handleSubmit } = useForm();
     const [isValid, setIsValid] = useState(false);
-    const [canSubmit, setCanSubmit] = useState({ 2: true, 4: true });
     const overlapWarned = useRef(false);
     const submitFocusTimer = useRef(null);
 
@@ -107,8 +106,6 @@ const Sony5 = ({ active, setFinalPrice, setCustomerDetails, goToDrinks }) => {
     };
 
     const submitSession = (variant, data) => {
-        if (!canSubmit[variant]) return;
-
         const { startKey, endKey, gamepadsKey, gamepadsLabel, pricePerHour, snackbarLabel } = SESSIONS[variant];
         const startTime = data[startKey];
         const endTime = data[endKey];
@@ -123,7 +120,6 @@ const Sony5 = ({ active, setFinalPrice, setCustomerDetails, goToDrinks }) => {
             nameOfConsole: CONSOLE_NAME,
         }));
 
-        setCanSubmit((prevState) => ({ ...prevState, [variant]: false }));
         enqueueSnackbar(
             `Uneto vreme za ${snackbarLabel} (SONY 5) od ${startTime} do ${endTime}`,
             { persist: true },
@@ -233,11 +229,12 @@ const Sony5 = ({ active, setFinalPrice, setCustomerDetails, goToDrinks }) => {
             e.target.value = `${e.target.value}:`;
         }
 
-        // Reject a minutes tens-digit above 5. Kept verbatim: an <input> has no
-        // .length, so the second argument is NaN and this is substring(0, 3) --
-        // i.e. it trims the value back to "HH:".
+        // Reject a minutes tens-digit above 5 by trimming back to "HH:". This used
+        // to read substring(3, e.target.length - 1); an <input> has no .length, so
+        // the second argument was NaN and substring swapped the bounds into
+        // exactly the call below. Same result, minus the accident.
         if (Number(e.target.value[3]) > 5) {
-            e.target.value = e.target.value.substring(3, e.target.length - 1);
+            e.target.value = e.target.value.substring(0, 3);
         }
 
         // Last, so they see the value after every rewrite above.
@@ -313,7 +310,15 @@ const Sony5 = ({ active, setFinalPrice, setCustomerDetails, goToDrinks }) => {
                         {timeInput('endTime_4')}
                     </div>
                 </div>
-                <button id={SUBMIT_ID} type="submit" disabled={!isValid} tabIndex={active ? 0 : -1}>Izračunaj</button>
+                <button
+                    id={SUBMIT_ID}
+                    className="sony__submit"
+                    type="submit"
+                    disabled={!isValid}
+                    tabIndex={active ? 0 : -1}
+                >
+                    Izračunaj
+                </button>
             </form>
         </div>
     );

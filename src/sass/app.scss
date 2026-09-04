@@ -17,13 +17,13 @@ ul, li, a {
     list-style: none;
 }
 
+/* Shared look only. Size belongs to each button: a global width/height here
+   silently blows out every new button that does not think to override it. */
 button {
     background: none;
     color: #fff;
     outline: none;
     border: 2px solid #fff;
-    width: 200px;
-    height: 40px;
     @include mix.flexBoxCenter;
     border-radius: 25px;
     cursor: pointer;
@@ -110,7 +110,7 @@ input {
 
     .sony_wrapper {
         width: 100vw;
-        @include mix.flexBoxSpace;
+        @include mix.flexBoxCenter;
         height: 100vh;
     }
 }
