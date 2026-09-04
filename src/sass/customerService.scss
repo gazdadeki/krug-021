@@ -1,4 +1,8 @@
 @use "./globals/mixins" as mix;
+
+$accent: yellowgreen;
+$muted: #9a9a9a;
+
 .customer-modal {
     height: 100vh;
     width: 100vw;
@@ -22,11 +26,11 @@
         transition: 0.2s ease-in-out;
 
         .modal-dialog {
-            width: 700px;
-            height: 700px;
+            width: 640px;
+            height: 640px;
             color: white;
             background-color: black;
-            border: 1px solid yellowgreen;
+            border: 1px solid $accent;
             border-radius: 50%;
             position: absolute;
             top: 0;
@@ -39,13 +43,13 @@
 
             .modal-new-instance {
                 position: absolute;
-                bottom: 34px;
+                bottom: 30px;
                 left: 50%;
                 transform: translateX(-50%);
                 cursor: pointer;
 
                 img {
-                    width: 180px;
+                    width: 120px;
                     background: none;
                     transition: transform .35s;
                 }
@@ -60,41 +64,68 @@
                     box-shadow: none;
                 }
             }
-            
+
+            /* The square inscribed in a 640px circle is only ~452px wide, so the
+               content box is kept under that as a percentage - anything wider
+               pushes text out past the curve at the top and bottom corners. */
             .modal-body {
-                height: 500px;
-                width: 470px;
+                width: 66%;
+                max-height: 74%;
                 box-sizing: border-box;
                 /* Reserve the strip the fatality icon is absolutely positioned
                    over, so the closing lines can never slide under it. */
-                padding-bottom: 140px;
-                @include mix.flexBoxCenter;
-                flex-direction: column;
-                justify-content: space-around;
+                padding-bottom: 112px;
+                @include mix.customFlex($justify: center, $align: center, $direction: column);
+                gap: 12px;
+                text-align: center;
 
-                .modal-desc {
-                    text-align: center;
-                    font-weight: 700;
-                    font-size: 24px;
+                .span-color {
+                    color: $accent;
+                }
 
-                    &.line-height {
-                        line-height: 2.2rem;
-                        font-size: 28px;
+                .modal-intro {
+                    @include mix.fontStyle($fontSize: 15px, $color: $muted, $fontWeigth: 700);
+                    text-transform: uppercase;
+                    letter-spacing: 2.5px;
+                }
+
+                /* One line per session instead of a run-on sentence: the times
+                   are what the customer checks, so they carry the size. */
+                .modal-sessions {
+                    width: 100%;
+                    padding: 0;
+                    margin: 0;
+                    list-style: none;
+
+                    li {
+                        @include mix.customFlex($justify: center, $align: baseline);
+                        gap: 10px;
+                        padding: 1px 0;
                     }
 
-                    .span-color {
-                        color: yellowgreen;
+                    .modal-sessions__time {
+                        @include mix.fontStyle($fontSize: 26px, $color: #fff, $fontWeigth: 700);
+                        letter-spacing: 1px;
+                        white-space: nowrap;
+                    }
+
+                    .modal-sessions__pads {
+                        @include mix.fontStyle($fontSize: 12px, $color: $muted, $fontWeigth: 700);
+                        text-transform: uppercase;
+                        letter-spacing: 1.5px;
+                        white-space: nowrap;
                     }
                 }
 
                 .modal-order {
                     width: 100%;
-                    max-height: 96px;
+                    max-height: 90px;
                     overflow-y: auto;
                     @include mix.customScrollbar($size: 5px);
                     padding: 0;
                     margin: 0;
-                    @include mix.fontStyle($fontSize: 16px, $fontWeigth: 700);
+                    list-style: none;
+                    @include mix.fontStyle($fontSize: 15px, $fontWeigth: 600);
 
                     li {
                         @include mix.customFlex($justify: space-between, $align: center);
@@ -106,58 +137,101 @@
                         }
 
                         .span-color {
-                            color: yellowgreen;
                             white-space: nowrap;
                         }
                     }
 
                     .order__subtotals {
-                        border-top: 1px solid yellowgreen;
-                        margin-top: 6px;
-                        padding-top: 6px;
+                        border-top: 1px solid rgba(154, 205, 50, 0.4);
+                        margin-top: 5px;
+                        padding-top: 5px;
+                        color: $muted;
                     }
                 }
 
-                .main-content {
-                    font-size: 42px;
+                /* The one number the customer is actually looking for. */
+                .modal-total {
+                    width: 100%;
+                    padding-top: 10px;
+                    border-top: 1px solid rgba(154, 205, 50, 0.45);
+                    @include mix.customFlex($justify: center, $align: center, $direction: column);
+
+                    .modal-total__label {
+                        @include mix.fontStyle($fontSize: 11px, $color: $muted, $fontWeigth: 800);
+                        text-transform: uppercase;
+                        letter-spacing: 4px;
+                    }
+
+                    .modal-total__value {
+                        @include mix.fontStyle($fontSize: 52px, $color: $accent, $fontWeigth: 800);
+                        line-height: 1.1;
+
+                        em {
+                            font-style: normal;
+                            font-size: 17px;
+                            font-weight: 700;
+                            margin-left: 7px;
+                            letter-spacing: 2px;
+                        }
+                    }
+                }
+
+                .modal-outro {
+                    @include mix.fontStyle($fontSize: 14px, $color: #b9b9b9, $fontWeigth: 600);
+                    line-height: 1.45;
+
+                    .modal-brand {
+                        display: block;
+                        @include mix.fontStyle($fontSize: 11px, $color: $accent, $fontWeigth: 800);
+                        text-transform: uppercase;
+                        letter-spacing: 3px;
+                        margin-top: 3px;
+                    }
                 }
             }
         }
     }
 }
 
-/* The 700px circle needs the height to match. On shorter screens scale the
-   whole receipt down rather than letting it run off the top and bottom. */
+/* The circle needs the height to match. On shorter screens scale the whole
+   receipt down rather than letting it run off the top and bottom. */
 @media (max-height: 780px) {
     .customer-modal.opened {
         .modal-dialog {
-            width: 600px;
-            height: 600px;
+            width: 560px;
+            height: 560px;
 
-            .modal-new-instance img {
-                width: 130px;
+            .modal-new-instance {
+                bottom: 26px;
+
+                img {
+                    width: 96px;
+                }
             }
 
             .modal-body {
-                height: 430px;
-                width: 400px;
-                padding-bottom: 108px;
+                padding-bottom: 90px;
+                gap: 9px;
 
-                .modal-desc {
-                    font-size: 20px;
+                .modal-intro {
+                    font-size: 13px;
+                }
 
-                    &.line-height {
-                        font-size: 22px;
-                        line-height: 1.9rem;
-                    }
+                .modal-sessions .modal-sessions__time {
+                    font-size: 21px;
                 }
 
                 .modal-order {
-                    max-height: 76px;
+                    max-height: 70px;
+                    font-size: 14px;
                 }
 
-                .main-content {
-                    font-size: 34px;
+                .modal-total .modal-total__value {
+                    font-size: 42px;
+                }
+
+                .modal-outro {
+                    font-size: 13px;
                 }
             }
         }

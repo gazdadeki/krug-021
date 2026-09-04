@@ -1,0 +1,19 @@
+# One format for the whole repo. .gitattributes enforces LF on the way into
+# Git; this stops editors writing CRLF back out in the first place.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,yml,yaml,md}]
+indent_size = 2
+
+# Generated - leave exactly as npm writes it.
+[package-lock.json]
+insert_final_newline = unset
+trim_trailing_whitespace = unset
