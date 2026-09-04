@@ -126,7 +126,6 @@ const MainContainer = () => {
                 </div>
             ) : (
                 <Drinks
-                    active
                     order={order}
                     addItem={addItem}
                     removeItem={removeItem}

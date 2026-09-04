@@ -3,16 +3,17 @@ import classNames from 'classnames';
 import { MENU } from '../../constants/menu';
 import '../../sass/Drinks.scss';
 
-const Drinks = ({ active, order, addItem, removeItem, consoleTotal, drinksTotal, openCustomerModal }) => {
+const Drinks = ({ order, addItem, removeItem, consoleTotal, drinksTotal, openCustomerModal }) => {
     const itemCount = Object.values(order).reduce((sum, item) => sum + item.quantity, 0);
 
     const racunRef = useRef(null);
 
-    // Arriving from "Izračunaj": park focus on Račun so a second Enter bills the
-    // Sony time on its own, without the operator touching the mouse.
+    // This screen only mounts on arrival from "Izračunaj", so mounting is the
+    // cue: park focus on Račun and a second Enter bills the Sony time on its
+    // own, without the operator touching the mouse.
     useEffect(() => {
-        if (active && racunRef.current) racunRef.current.focus();
-    }, [active]);
+        if (racunRef.current) racunRef.current.focus();
+    }, []);
 
     return (
         <div className="drinks__screen">

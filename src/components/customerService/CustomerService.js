@@ -7,13 +7,21 @@ import fatalityIcon from '../../assets/fatality_icon.png';
 
 const AUTO_RESET_MS = 60000;
 
+// Long enough for the browser to have started the download. Revoking the blob
+// synchronously after click() can cancel it.
+const REVOKE_DELAY_MS = 1000;
+
+const pad = (value) => String(value).padStart(2, '0');
+
 // Sessions running past midnight are entered as 24:xx-27:xx; the receipt shows
 // them as real clock times.
 const PAST_MIDNIGHT_HOURS = { 24: '00', 25: '01', 26: '02', 27: '03' };
 
 const exportUserInfo = (timeData) => {
     const today = new Date();
-    const time = `${today.getHours()}:${today.getMinutes()}`;
+    // Padded, and no colon: ':' is illegal in a Windows filename, and an
+    // unpadded 9:5 is unreadable next to 21:50 in a sorted folder.
+    const time = `${pad(today.getHours())}-${pad(today.getMinutes())}`;
     const blob = new Blob([JSON.stringify(timeData)], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -21,7 +29,7 @@ const exportUserInfo = (timeData) => {
     link.download = `prethodno-vreme_${time}.txt`;
     link.href = url;
     link.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), REVOKE_DELAY_MS);
 };
 
 const timeExpressionConverter = (time) => {
