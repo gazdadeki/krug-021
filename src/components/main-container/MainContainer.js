@@ -107,7 +107,9 @@ const MainContainer = () => {
                     onClick={unlockService}
                     ref={unlockRef}
                     id="unlock_icon_container"
-                    tabIndex="0"
+                    // The banner stays mounted after unlocking, so drop the
+                    // padlock out of the tab order once it has done its job.
+                    tabIndex={openService ? -1 : 0}
                 >
                     <img src={unlock} alt="unlock icon" />
                 </span>

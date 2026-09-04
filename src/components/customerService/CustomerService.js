@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useSnackbar } from 'notistack';
 import classNames from 'classnames';
 import '../../sass/customerService.scss';
-import { isConfirmKey } from '../utility';
+import { isConfirmKey, toMinutes } from '../utility';
 import fatalityIcon from '../../assets/fatality_icon.png';
 
 const AUTO_RESET_MS = 60000;
@@ -108,14 +108,14 @@ const CustomerService = (props) => {
         if (isConfirmKey(e)) restartApp();
     };
 
-    // One row per session, earliest first. Zero-padded "HH:MM" sorts correctly
-    // as a plain string, so no date parsing is needed to order these.
+    // One row per session, earliest first. Sorted on normalised minutes so a
+    // session that ends after midnight still lands below the one before it.
     const sessions = [
         has2 && { key: '2', start: startTime_2, end: endTime_2, gamepads: gamepads_2 },
         has4 && { key: '4', start: startTime_4, end: endTime_4, gamepads: gamepads_4 },
     ]
         .filter(Boolean)
-        .sort((a, b) => String(a.start).localeCompare(String(b.start)));
+        .sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
 
     return (
         <div
@@ -172,7 +172,10 @@ const CustomerService = (props) => {
                         id="modal_instance"
                         className="modal-new-instance"
                         ref={newInstanceRef}
-                        tabIndex="2"
+                        // Closed, this modal is still mounted and only parked
+                        // off-screen, so a positive tabIndex would put the
+                        // fatality icon in the tab order of every other screen.
+                        tabIndex={openModal ? 0 : -1}
                         onClick={restartApp}
                         onKeyDown={restartOnKeyDown}
                     >
