@@ -1,9 +1,6 @@
 import { render, fireEvent, screen } from '@testing-library/react';
 import { SnackbarProvider } from 'notistack';
 import CustomerService from '../components/customerService/CustomerService';
-import { stubDownloads } from '../testUtils';
-
-beforeAll(stubDownloads);
 
 const details = (overrides = {}) => ({
     startTime_2: null, endTime_2: null, gamepads_2: null,
@@ -54,12 +51,6 @@ test('small-hours times entered as 24+ are shown as clock times', () => {
     const row = document.querySelector('.modal-sessions li').textContent;
     expect(row).toContain('00:10');
     expect(row).not.toContain('24:10');
-});
-
-test('the exported filename is padded and free of colons', () => {
-    openReceipt(details({ startTime_2: '10:00', endTime_2: '11:00', gamepads_2: '2 Dzojstika' }));
-    // The anchor is built inside exportUserInfo; assert on what it was told to save.
-    expect(URL.createObjectURL).toHaveBeenCalled();
 });
 
 test('drinks appear on the receipt with their line totals', () => {

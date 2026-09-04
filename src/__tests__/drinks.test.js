@@ -1,9 +1,6 @@
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import { SnackbarProvider } from 'notistack';
 import MainContainer from '../components/main-container/MainContainer';
-import { stubDownloads } from '../testUtils';
-
-beforeAll(stubDownloads);
 
 // Get to the drinks screen the way the operator does.
 const openDrinks = async () => {

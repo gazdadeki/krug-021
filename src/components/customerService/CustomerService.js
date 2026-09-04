@@ -7,30 +7,9 @@ import fatalityIcon from '../../assets/fatality_icon.png';
 
 const AUTO_RESET_MS = 60000;
 
-// Long enough for the browser to have started the download. Revoking the blob
-// synchronously after click() can cancel it.
-const REVOKE_DELAY_MS = 1000;
-
-const pad = (value) => String(value).padStart(2, '0');
-
 // Sessions running past midnight are entered as 24:xx-27:xx; the receipt shows
 // them as real clock times.
 const PAST_MIDNIGHT_HOURS = { 24: '00', 25: '01', 26: '02', 27: '03' };
-
-const exportUserInfo = (timeData) => {
-    const today = new Date();
-    // Padded, and no colon: ':' is illegal in a Windows filename, and an
-    // unpadded 9:5 is unreadable next to 21:50 in a sorted folder.
-    const time = `${pad(today.getHours())}-${pad(today.getMinutes())}`;
-    const blob = new Blob([JSON.stringify(timeData)], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-
-    link.download = `prethodno-vreme_${time}.txt`;
-    link.href = url;
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), REVOKE_DELAY_MS);
-};
 
 const timeExpressionConverter = (time) => {
     if (!time) return time;
@@ -39,12 +18,6 @@ const timeExpressionConverter = (time) => {
 
     return PAST_MIDNIGHT_HOURS[hours] ? `${PAST_MIDNIGHT_HOURS[hours]}:${time.substring(3, 5)}` : time;
 };
-
-const sessionFields = (start, end, gamepads, suffix = '') => ({
-    [`pocetnoVreme${suffix}`]: start,
-    [`zavrsnoVreme${suffix}`]: end,
-    [`brojDzojstika${suffix}`]: gamepads,
-});
 
 const CustomerService = (props) => {
     const { openModal, finalPrice, customerDetails, orderItems = [], drinksTotal = 0 } = props;
@@ -78,36 +51,6 @@ const CustomerService = (props) => {
     // Move focus onto the restart target so the kiosk stays keyboard-drivable.
     useEffect(() => {
         if (openModal && newInstanceRef.current) newInstanceRef.current.focus();
-    }, [openModal]);
-
-    // Write the receipt to disk once, when the modal opens.
-    useEffect(() => {
-        if (!openModal) return;
-
-        const totals = {
-            cenaSony: `${finalPrice} DIN`,
-            cenaPica: `${drinksTotal} DIN`,
-            cenaUkupno: `${grandTotal} DIN`,
-            pica: orderItems.map((item) => ({
-                naziv: item.name,
-                kolicina: item.quantity,
-                cena: `${item.price * item.quantity} DIN`,
-            })),
-            konzola: nameOfConsole,
-        };
-
-        if (has2 && has4) {
-            exportUserInfo({
-                ...sessionFields(startTime_2, endTime_2, gamepads_2, '_2'),
-                ...sessionFields(startTime_4, endTime_4, gamepads_4, '_4'),
-                ...totals,
-            });
-        } else if (has4) {
-            exportUserInfo({ ...sessionFields(startTime_4, endTime_4, gamepads_4), ...totals });
-        } else {
-            exportUserInfo({ ...sessionFields(startTime_2, endTime_2, gamepads_2), ...totals });
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [openModal]);
 
     const restartApp = () => window.location.reload();

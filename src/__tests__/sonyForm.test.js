@@ -1,9 +1,7 @@
 import { render, fireEvent, screen, waitFor, cleanup } from '@testing-library/react';
 import { SnackbarProvider } from 'notistack';
 import MainContainer from '../components/main-container/MainContainer';
-import { stubDownloads, tabOrder } from '../testUtils';
-
-beforeAll(stubDownloads);
+import { tabOrder } from '../testUtils';
 
 const openSony = () => {
     render(<SnackbarProvider><MainContainer /></SnackbarProvider>);
