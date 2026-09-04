@@ -1,11 +1,10 @@
 import { useEffect, useRef } from 'react';
+import classNames from 'classnames';
 import { MENU } from '../../constants/menu';
 import '../../sass/Drinks.scss';
 
-const Drinks = (props) => {
-    const { active, order, addItem, removeItem, consoleTotal, drinksTotal, openCustomerModal } = props;
-
-    const itemCount = Object.keys(order).reduce((sum, name) => sum + order[name].quantity, 0);
+const Drinks = ({ active, order, addItem, removeItem, consoleTotal, drinksTotal, openCustomerModal }) => {
+    const itemCount = Object.values(order).reduce((sum, item) => sum + item.quantity, 0);
 
     const racunRef = useRef(null);
 
@@ -29,11 +28,11 @@ const Drinks = (props) => {
 
                         <div className="menu__grid">
                             {group.items.map((item) => {
-                                const quantity = order[item.name] ? order[item.name].quantity : 0;
+                                const quantity = order[item.name]?.quantity ?? 0;
 
                                 return (
                                     <div
-                                        className={quantity ? 'menu__card selected' : 'menu__card'}
+                                        className={classNames('menu__card', { selected: quantity })}
                                         key={item.name}
                                     >
                                         <button
@@ -44,18 +43,31 @@ const Drinks = (props) => {
                                             <span className="menu__card-name">{item.name}</span>
                                         </button>
 
+                                        {/* Only ever rendered above zero: removeItem drops the
+                                            entry at the last unit, so the stepper disappears
+                                            rather than sitting there showing 0. */}
                                         {quantity > 0 && (
-                                            <>
-                                                <span className="menu__card-badge">{quantity}</span>
+                                            <div className="menu__card-stepper">
                                                 <button
                                                     type="button"
-                                                    className="menu__card-remove"
+                                                    className="menu__card-step"
                                                     aria-label={`Ukloni ${item.name}`}
                                                     onClick={() => removeItem(item)}
                                                 >
                                                     &minus;
                                                 </button>
-                                            </>
+                                                {/* Keyed on the value so React remounts it and the
+                                                    pop animation replays on every change. */}
+                                                <span className="menu__card-qty" key={quantity}>{quantity}</span>
+                                                <button
+                                                    type="button"
+                                                    className="menu__card-step"
+                                                    aria-label={`Dodaj ${item.name}`}
+                                                    onClick={() => addItem(item)}
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
                                         )}
                                     </div>
                                 );

@@ -21,7 +21,7 @@ export const MENU = [
         ],
     },
     {
-        title: 'Sokovi',
+        title: 'Sokovi i Vode',
         items: [
             { name: 'Coca-Cola', price: 180 },
             { name: 'Fanta', price: 180 },
@@ -51,5 +51,3 @@ export const MENU = [
         ],
     },
 ];
-
-export default MENU;

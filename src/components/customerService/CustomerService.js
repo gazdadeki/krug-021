@@ -1,18 +1,23 @@
 import { useEffect, useRef } from 'react';
 import { useSnackbar } from 'notistack';
-import '../../sass/customerService.scss';
 import classNames from 'classnames';
+import '../../sass/customerService.scss';
+import { isConfirmKey } from '../utility';
 import fatalityIcon from '../../assets/fatality_icon.png';
 
 const AUTO_RESET_MS = 60000;
 
+// Sessions running past midnight are entered as 24:xx-27:xx; the receipt shows
+// them as real clock times.
+const PAST_MIDNIGHT_HOURS = { 24: '00', 25: '01', 26: '02', 27: '03' };
+
 const exportUserInfo = (timeData) => {
     const today = new Date();
     const time = `${today.getHours()}:${today.getMinutes()}`;
-    const fileData = JSON.stringify(timeData);
-    const blob = new Blob([fileData], { type: 'text/plain' });
+    const blob = new Blob([JSON.stringify(timeData)], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
+
     link.download = `prethodno-vreme_${time}.txt`;
     link.href = url;
     link.click();
@@ -23,10 +28,15 @@ const timeExpressionConverter = (time) => {
     if (!time) return time;
 
     const hours = time.substring(0, 2);
-    const pastMidnight = { 24: '00', 25: '01', 26: '02', 27: '03' };
 
-    return pastMidnight[hours] ? `${pastMidnight[hours]}:${time.substring(3, 5)}` : time;
+    return PAST_MIDNIGHT_HOURS[hours] ? `${PAST_MIDNIGHT_HOURS[hours]}:${time.substring(3, 5)}` : time;
 };
+
+const sessionFields = (start, end, gamepads, suffix = '') => ({
+    [`pocetnoVreme${suffix}`]: start,
+    [`zavrsnoVreme${suffix}`]: end,
+    [`brojDzojstika${suffix}`]: gamepads,
+});
 
 const CustomerService = (props) => {
     const { openModal, finalPrice, customerDetails, orderItems = [], drinksTotal = 0 } = props;
@@ -80,18 +90,14 @@ const CustomerService = (props) => {
 
         if (has2 && has4) {
             exportUserInfo({
-                pocetnoVreme_2: startTime_2, zavrsnoVreme_2: endTime_2, brojDzojstika_2: gamepads_2,
-                pocetnoVreme_4: startTime_4, zavrsnoVreme_4: endTime_4, brojDzojstika_4: gamepads_4,
+                ...sessionFields(startTime_2, endTime_2, gamepads_2, '_2'),
+                ...sessionFields(startTime_4, endTime_4, gamepads_4, '_4'),
                 ...totals,
             });
         } else if (has4) {
-            exportUserInfo({
-                pocetnoVreme: startTime_4, zavrsnoVreme: endTime_4, brojDzojstika: gamepads_4, ...totals,
-            });
+            exportUserInfo({ ...sessionFields(startTime_4, endTime_4, gamepads_4), ...totals });
         } else {
-            exportUserInfo({
-                pocetnoVreme: startTime_2, zavrsnoVreme: endTime_2, brojDzojstika: gamepads_2, ...totals,
-            });
+            exportUserInfo({ ...sessionFields(startTime_2, endTime_2, gamepads_2), ...totals });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [openModal]);
@@ -99,35 +105,17 @@ const CustomerService = (props) => {
     const restartApp = () => window.location.reload();
 
     const restartOnKeyDown = (e) => {
-        if (e.keyCode === 13 || e.keyCode === 32) window.location.reload();
+        if (isConfirmKey(e)) restartApp();
     };
 
-    const segment = (start, end, gamepads) => (
-        <>
-            od{' '}
-            <span className="span-color">{timeExpressionConverter(start)}</span> do{' '}
-            <span className="span-color">{timeExpressionConverter(end)}</span> sa{' '}
-            <span className="span-color">{timeExpressionConverter(gamepads)}</span>
-        </>
-    );
-
-    const finalTimeExpression = () => {
-        if (has2 && has4) {
-            const two = segment(startTime_2, endTime_2, gamepads_2);
-            const four = segment(startTime_4, endTime_4, gamepads_4);
-            const twoFirst = startTime_2 <= startTime_4;
-
-            return (
-                <>
-                    {twoFirst ? two : four} i {twoFirst ? four : two}
-                </>
-            );
-        }
-
-        if (has4) return segment(startTime_4, endTime_4, gamepads_4);
-
-        return segment(startTime_2, endTime_2, gamepads_2);
-    };
+    // One row per session, earliest first. Zero-padded "HH:MM" sorts correctly
+    // as a plain string, so no date parsing is needed to order these.
+    const sessions = [
+        has2 && { key: '2', start: startTime_2, end: endTime_2, gamepads: gamepads_2 },
+        has4 && { key: '4', start: startTime_4, end: endTime_4, gamepads: gamepads_4 },
+    ]
+        .filter(Boolean)
+        .sort((a, b) => String(a.start).localeCompare(String(b.start)));
 
     return (
         <div
@@ -136,18 +124,28 @@ const CustomerService = (props) => {
         >
             <div className="modal-dialog">
                 <div className="modal-body">
-                    <p className="modal-desc line-height">
-                        Igrali ste na
-                        <span className="span-color"> {nameOfConsole}</span> u periodu{' '}
-                        <br />
-                        {finalTimeExpression()}
+                    <p className="modal-intro">
+                        Igrali ste na <span className="span-color">{nameOfConsole}</span>
                     </p>
+
+                    <ul className="modal-sessions">
+                        {sessions.map((session) => (
+                            <li key={session.key}>
+                                <span className="modal-sessions__time">
+                                    <span className="span-color">{timeExpressionConverter(session.start)}</span>
+                                    {' \u2013 '}
+                                    <span className="span-color">{timeExpressionConverter(session.end)}</span>
+                                </span>
+                                <span className="modal-sessions__pads">{session.gamepads}</span>
+                            </li>
+                        ))}
+                    </ul>
 
                     {orderItems.length > 0 && (
                         <ul className="modal-order">
                             {orderItems.map((item) => (
                                 <li key={item.name}>
-                                    <span className="order__name">{item.quantity}x {item.name}</span>
+                                    <span className="order__name">{item.quantity}&times; {item.name}</span>
                                     <span className="span-color">{item.price * item.quantity} DIN</span>
                                 </li>
                             ))}
@@ -158,23 +156,27 @@ const CustomerService = (props) => {
                         </ul>
                     )}
 
-                    <p className="modal-desc main-content">
-                        Vaš račun iznosi:
-                        <span className="span-color"> {grandTotal} </span>
-                        dinara
+                    <div className="modal-total">
+                        <span className="modal-total__label">Ukupno</span>
+                        <span className="modal-total__value">
+                            {grandTotal}
+                            <em>DIN</em>
+                        </span>
+                    </div>
+
+                    <p className="modal-outro">
+                        Hvala što ste se igrali kod nas
+                        <span className="modal-brand">Budi deo kruga</span>
                     </p>
-                    <p className="modal-desc">Hvala sto ste se igrali kod nas </p>
-                    <p className='modal-desc'>Budi deo kruga</p>
-                    <p></p>
                     <div
-                        id='modal_instance'
+                        id="modal_instance"
                         className="modal-new-instance"
                         ref={newInstanceRef}
                         tabIndex="2"
                         onClick={restartApp}
                         onKeyDown={restartOnKeyDown}
                     >
-                        <img src={fatalityIcon} alt='ps gamepad' />
+                        <img src={fatalityIcon} alt="ps gamepad" />
                     </div>
                 </div>
             </div>
